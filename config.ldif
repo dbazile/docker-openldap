@@ -1,0 +1,58 @@
+## Base ########################################################################
+
+dn: cn=config
+objectClass: olcGlobal
+cn: config
+olcTLSCACertificateFile: /etc/openldap/certs/ca.crt
+olcTLSCertificateFile: /etc/openldap/certs/server.crt
+olcTLSCertificateKeyFile: /etc/openldap/certs/server.key
+
+
+## Schema ######################################################################
+
+dn: cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: schema
+
+include: file:///workdir/schema.ldif
+
+
+## Frontend ####################################################################
+
+dn: olcDatabase=frontend,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcFrontendConfig
+olcDatabase: frontend
+
+
+## Config Database #############################################################
+
+dn: olcDatabase=config,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: config
+olcAccess: to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage by * none
+
+
+## Server Status Monitoring ####################################################
+
+dn: olcDatabase=monitor,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: monitor
+olcAccess: to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read by dn.base="uid=root,dc=test" read by * none
+
+
+## Backend #####################################################################
+
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+OlcDbMaxSize: 1073741824
+olcDbDirectory: /var/lib/ldap
+olcDbIndex: objectClass eq
+olcRootDN: uid=root,dc=test
+olcRootPW: secret
+olcSuffix: dc=test
+olcAccess: to attrs=userPassword by self read by * auth
+olcAccess: to dn.subtree="ou=services,dc=test" by self read by * auth
+olcAccess: to * by dn.children="ou=services,o=bazile" read by * auth

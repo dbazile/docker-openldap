@@ -1,0 +1,134 @@
+## Top-Level Structures ########################################################
+
+dn: dc=test
+objectClass: domain
+dc: test
+
+
+## Service Accounts ############################################################
+
+dn: ou=services, dc=test
+objectClass: organizationalUnit
+
+dn: uid=test, ou=services, dc=test
+objectClass: ServiceAccount
+uid: test
+userPassword: test
+
+
+## Groups ######################################################################
+
+dn: cn=ADGroup1, dc=test
+objectClass: group
+cn: ADGroup1
+groupType: 0x00000002
+member: cn=UserB, ou=Org1, dc=test
+objectSid: S-0-0-00-0000000000-000000000-000000000-0000
+
+dn: cn=ADGroup2, dc=test
+objectClass: group
+cn: ADGroup2
+groupType: 0x00000002
+objectSid: S-0-0-00-0000000000-000000000-000000000-0001
+
+
+## Users : Org1 ################################################################
+
+dn: ou=Org1, dc=test
+objectClass: organizationalUnit
+description: First test organization.
+
+dn: cn=UserA, ou=Org1, dc=test
+objectClass: user
+company: Company A
+cn: UserA
+cn: Alpha, User
+gn: User
+sn: Alpha
+l: Chantilly
+c: US
+st: Virginia
+employeeType: Employee
+mail: test-email@domain.test
+objectSid: S-0-0-11-0000000000-000000000-000000000-0000
+preferredLanguage: EN
+uid: 64404e214c7be1e71a5cd6d1b1b8636d
+
+dn: cn=UserB, ou=Org1, dc=test
+objectClass: user
+company: Company A
+cn: UserB
+cn: Bravo, User
+gn: User
+sn: Bravo
+l: Chantilly
+st: Virginia
+c: US
+employeeType: Employee
+mail: test-email@domain.test
+member: ou=ADGroup1, dc=test
+member: ou=ADGroup2, dc=test
+objectSid: S-0-0-11-0000000000-000000000-000000000-0001
+preferredLanguage: EN
+uid: a038ff8b8ea3b9137b85e76a66d972de
+
+dn: cn=UserC, ou=Org1, dc=test
+objectClass: user
+company: Company A
+cn: UserC
+cn: Charlie, User
+gn: User
+sn: Charlie
+l: Chantilly
+st: Virginia
+c: US
+employeeType: Employee
+mail: test-email@domain.test
+objectSid: S-0-0-11-0000000000-000000000-000000000-0002
+preferredLanguage: EN
+uid: 49cea41cc967824cb640d7e31c6db2ee
+
+
+## Users : Org2 ################################################################
+
+dn: ou=Org2, dc=test
+objectClass: organizationalUnit
+description: Second test organization.
+
+dn: cn=UserD, ou=Org2, dc=test
+objectClass: user
+company: Company B
+cn: UserD
+cn: Delta, User
+gn: User
+sn: Delta
+l: Herndon
+st: Virginia
+c: US
+employeeType: Employee
+mail: test-email@domain.test
+objectSid: S-0-0-11-0000000000-000000000-000000000-0003
+preferredLanguage: EN
+uid: 4bfe8f14e2f7bb516e77236bc2e7af1c
+
+
+## Users : Org3 ################################################################
+
+dn: ou=Org3, dc=test
+objectClass: organizationalUnit
+description: Third test organization.
+
+dn: cn=UserE, ou=Org3, dc=test
+objectClass: user
+company: Company C
+cn: UserE
+cn: Echo, User
+gn: User
+sn: Echo
+l: Alexandria
+c: VA
+employeeType: Employee
+mail: test-email@domain.test
+objectSid: S-0-0-11-0000000000-000000000-000000000-0004
+preferredLanguage: EN
+uid: d2be1662f93fc3d68ec500e0e8e63d0d
