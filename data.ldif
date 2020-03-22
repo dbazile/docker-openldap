@@ -4,6 +4,12 @@ dn: dc=test
 objectClass: domain
 dc: test
 
+dn: uid=root, dc=test
+objectClass: organizationalRole
+objectClass: uidObject
+uid: root
+cn: root
+
 
 ## Service Accounts ############################################################
 

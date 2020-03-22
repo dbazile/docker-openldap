@@ -17,9 +17,7 @@ RUN set -ex \
 WORKDIR /workdir
 
 ADD certs/ /etc/openldap/certs/
-ADD config.ldif .
-ADD schema.ldif .
-ADD data.ldif .
+ADD *.ldif .
 ADD entrypoint.sh /
 
 RUN set -ex \

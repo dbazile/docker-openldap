@@ -47,12 +47,12 @@ dn: olcDatabase=mdb,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcMdbConfig
 olcDatabase: mdb
-OlcDbMaxSize: 1073741824
 olcDbDirectory: /var/lib/ldap
 olcDbIndex: objectClass eq
+olcDbMaxSize: 1073741824
 olcRootDN: uid=root,dc=test
 olcRootPW: secret
 olcSuffix: dc=test
 olcAccess: to attrs=userPassword by self read by * auth
 olcAccess: to dn.subtree="ou=services,dc=test" by self read by * auth
-olcAccess: to * by dn.children="ou=services,o=bazile" read by * auth
+olcAccess: to * by dn.children="ou=services,dc=test" read by * auth

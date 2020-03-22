@@ -19,12 +19,15 @@ slapd \
 
 # Apply credentials
 sleep 1
-ldapmodify -Y EXTERNAL -H ldapi:/// <<< "
+cat <<-EOT | ldapmodify -Y EXTERNAL -H ldapi:///
 	dn: olcDatabase={2}mdb,cn=config
 	changetype: modify
+	replace: olcRootDN
+	olcRootDN: $LDAP_ROOT_DN
+	-
 	replace: olcRootPW
 	olcRootPW: $LDAP_ROOT_PASSWORD
-"
+EOT
 
 # Hand off to specified command if any
 if [[ -n "$*" ]]; then
