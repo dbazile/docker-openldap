@@ -1,10 +1,6 @@
 # docker-openldap
 
-> Test/Development LDAP server in a container.
-
-This is a containerized test/development OpenLDAP server designed for
-portability. It comes prepopulated with people and groups suitable for
-testing.
+> Containerized test/development LDAP server, prepopulated with people and groups.
 
 ## Usage
 
