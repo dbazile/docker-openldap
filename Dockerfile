@@ -14,16 +14,17 @@ RUN set -ex \
 	&& yum clean all \
 	&& echo "alias tree='tree -AC'" > /etc/profile.d/tree.sh
 
-WORKDIR /workdir
+ENTRYPOINT ["/entrypoint.sh"]
 
 ADD certs/ /etc/openldap/certs/
-ADD *.ldif .
+ADD ldap.conf /etc/openldap/
 ADD entrypoint.sh /
 
+WORKDIR /workdir
+ADD *.ldif .
 RUN set -ex \
 	&& rm -rf /etc/openldap/slapd.d/* \
-	&& slapadd -F /etc/openldap/slapd.d/ -n 0 -l /workdir/config.ldif \
-	&& slapadd -F /etc/openldap/slapd.d/ -n 2 -l /workdir/data.ldif \
+	&& slapadd -F /etc/openldap/slapd.d -b cn=config -l /workdir/config.ldif \
 	&& cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG \
 	&& chown -R ldap:ldap \
 		/etc/openldap/certs/ca.crt \
@@ -31,7 +32,5 @@ RUN set -ex \
 		/etc/openldap/certs/server.key \
 		/etc/openldap/slapd.d/ \
 		/var/lib/ldap
-
-ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 389 636

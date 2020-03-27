@@ -3,10 +3,9 @@
 set -e
 
 DEBUG=${DEBUG:-stats}
-LDAP_ROOT_DN=${LDAP_ROOT_DN:-uid=root,dc=test}
-LDAP_ROOT_PASSWORD=${LDAP_ROOT_PASSWORD:-secret}
 
 set -x
+
 
 # Start the server
 trap 'cat -n /slapd.log' ERR
@@ -16,20 +15,14 @@ slapd \
 	-h 'ldapi:/// ldaps:/// ldap:///' \
 	&> /slapd.log \
 	&
+sleep 0.5
 
-# Apply credentials
-sleep 1
-cat <<-EOT | ldapmodify -Y EXTERNAL -H ldapi:///
-	dn: olcDatabase={2}mdb,cn=config
-	changetype: modify
-	replace: olcRootDN
-	olcRootDN: $LDAP_ROOT_DN
-	-
-	replace: olcRootPW
-	olcRootPW: $LDAP_ROOT_PASSWORD
-EOT
 
-# Hand off to specified command if any
+# 'slapadd' doesn't seem to invoke overlays so load data with server running
+ldapadd -f /workdir/data.ldif
+
+
+# Tail logs or hand off to user command
 if [[ -n "$*" ]]; then
 	exec "$@"
 else

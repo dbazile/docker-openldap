@@ -4,12 +4,6 @@ dn: dc=test
 objectClass: domain
 dc: test
 
-dn: uid=root, dc=test
-objectClass: organizationalRole
-objectClass: uidObject
-uid: root
-cn: root
-
 
 ## Service Accounts ############################################################
 
@@ -20,22 +14,6 @@ dn: uid=test, ou=services, dc=test
 objectClass: ServiceAccount
 uid: test
 userPassword: test
-
-
-## Groups ######################################################################
-
-dn: cn=ADGroup1, dc=test
-objectClass: group
-cn: ADGroup1
-groupType: 0x00000002
-member: cn=UserB, ou=Org1, dc=test
-objectSid: S-0-0-00-0000000000-000000000-000000000-0000
-
-dn: cn=ADGroup2, dc=test
-objectClass: group
-cn: ADGroup2
-groupType: 0x00000002
-objectSid: S-0-0-00-0000000000-000000000-000000000-0001
 
 
 ## Users : Org1 ################################################################
@@ -72,8 +50,6 @@ st: Virginia
 c: US
 employeeType: Employee
 mail: test-email@domain.test
-member: ou=ADGroup1, dc=test
-member: ou=ADGroup2, dc=test
 objectSid: S-0-0-11-0000000000-000000000-000000000-0001
 preferredLanguage: EN
 uid: a038ff8b8ea3b9137b85e76a66d972de
@@ -138,3 +114,23 @@ mail: test-email@domain.test
 objectSid: S-0-0-11-0000000000-000000000-000000000-0004
 preferredLanguage: EN
 uid: d2be1662f93fc3d68ec500e0e8e63d0d
+
+
+## Groups ######################################################################
+
+# These need to be added _after_ the users for the 'memberof' overlay to
+# populate the reverse relationship
+
+dn: cn=ADGroup1, dc=test
+objectClass: group
+cn: ADGroup1
+groupType: 0x00000002
+member: cn=UserB, ou=Org1, dc=test
+objectSid: S-0-0-00-0000000000-000000000-000000000-0000
+
+dn: cn=ADGroup2, dc=test
+objectClass: group
+cn: ADGroup2
+groupType: 0x00000002
+member: cn=UserB, ou=Org1, dc=test
+objectSid: S-0-0-00-0000000000-000000000-000000000-0001

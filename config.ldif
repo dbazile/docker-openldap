@@ -7,6 +7,12 @@ olcTLSCACertificateFile: /etc/openldap/certs/ca.crt
 olcTLSCertificateFile: /etc/openldap/certs/server.crt
 olcTLSCertificateKeyFile: /etc/openldap/certs/server.key
 
+dn: cn=module,cn=config
+objectClass: olcModuleList
+cn: module
+olcModuleload: memberof.la
+olcModuleload: refint.la
+
 
 ## Schema ######################################################################
 
@@ -14,45 +20,99 @@ dn: cn=schema,cn=config
 objectClass: olcSchemaConfig
 cn: schema
 
-include: file:///workdir/schema.ldif
+include: file:///etc/openldap/schema/core.ldif
+include: file:///etc/openldap/schema/cosine.ldif
+include: file:///etc/openldap/schema/inetorgperson.ldif
+
+#
+# Replica of Active Directory "User" class
+#
+# Ref: https://docs.microsoft.com/en-us/windows/win32/adschema/c-user
+#
+dn: cn=user,cn=schema,cn=config
+objectClass: olcSchemaConfig
+olcAttributeTypes: ( 99999999.1.1
+  NAME 'company'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 99999999.1.2
+  NAME 'objectSid'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcObjectClasses: ( 99999999.1
+  NAME 'user'
+  STRUCTURAL
+  SUP 'InetOrgPerson'
+  MUST ( c $ company $ employeeType $ objectSid ) )
+
+#
+# Replica of Active Directory "Group" class
+#
+# Ref: https://docs.microsoft.com/en-us/windows/win32/adschema/c-group
+#
+dn: cn=group,cn=schema,cn=config
+objectClass: olcSchemaConfig
+olcAttributeTypes: ( 99999999.3.1
+  NAME 'groupType'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcObjectClasses: ( 99999999.3
+  NAME 'group'
+  STRUCTURAL
+  SUP 'top'
+  MUST ( cn $ groupType $ objectSid )
+  MAY ( member ) )
+
+# No known AD equivalent
+dn: cn=ServiceAccount,cn=schema,cn=config
+objectClass: olcSchemaConfig
+olcObjectClasses: ( 99999999.0
+  NAME 'ServiceAccount'
+  STRUCTURAL
+  SUP 'top'
+  MUST ( uid $ userPassword ) )
 
 
-## Frontend ####################################################################
-
-dn: olcDatabase=frontend,cn=config
-objectClass: olcDatabaseConfig
-objectClass: olcFrontendConfig
-olcDatabase: frontend
-
-
-## Config Database #############################################################
+## Databases ###################################################################
 
 dn: olcDatabase=config,cn=config
 objectClass: olcDatabaseConfig
 olcDatabase: config
-olcAccess: to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage by * none
+olcAccess: to *
+  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+  by * none
 
-
-## Server Status Monitoring ####################################################
-
-dn: olcDatabase=monitor,cn=config
-objectClass: olcDatabaseConfig
-olcDatabase: monitor
-olcAccess: to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read by dn.base="uid=root,dc=test" read by * none
-
-
-## Backend #####################################################################
-
-dn: olcDatabase=mdb,cn=config
-objectClass: olcDatabaseConfig
+dn: olcDatabase={1}mdb,cn=config
 objectClass: olcMdbConfig
-olcDatabase: mdb
+olcDatabase: {1}mdb
 olcDbDirectory: /var/lib/ldap
 olcDbIndex: objectClass eq
-olcDbMaxSize: 1073741824
 olcRootDN: uid=root,dc=test
 olcRootPW: secret
 olcSuffix: dc=test
-olcAccess: to attrs=userPassword by self read by * auth
-olcAccess: to dn.subtree="ou=services,dc=test" by self read by * auth
-olcAccess: to * by dn.children="ou=services,dc=test" read by * auth
+olcAccess: to attrs=userPassword
+  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+  by anonymous auth
+  by * none
+olcAccess: to dn.subtree="ou=services,dc=test"
+  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+  by self read
+  by * none
+olcAccess: to *
+  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+  by dn.children="ou=services,dc=test" read
+  by * none
+
+dn: olcOverlay=memberof,olcDatabase={1}mdb,cn=config
+objectClass: olcMemberOf
+olcOverlay: memberOf
+olcMemberOfGroupOC: group
+olcMemberOfRefint: true
+
+dn: olcOverlay=refint,olcDatabase={1}mdb,cn=config
+objectClass: olcRefintConfig
+olcOverlay: refint
+olcRefintAttribute: memberof member manager owner

@@ -20,7 +20,7 @@ main() {
 
 	_ldapsearch '[find user group memberships] should return 2 group dns' \
 		-b 'CN=UserB,OU=Org1,dc=test' \
-		'member'
+		'memberof'
 
 	_ldapsearch '[enumerate orgs] should return 3 orgs' \
 		-b 'dc=test' \
@@ -46,11 +46,18 @@ main() {
 
 _ldapsearch() {
 	printf '\033[33m%s\033[0m\n' "$1"
+
+	if [[ ! -f /usr/bin/ldapsearch ]]; then
+		cmd='podman exec openldap ldapsearch'
+	else
+		cmd=ldapsearch
+	fi
+
 	echo "---"
 	trap 'echo "---"' ERR RETURN
 	(
 		set -x
-		ldapsearch \
+		$cmd \
 			-LLL \
 			-x \
 			-H 'ldap://localhost' \
