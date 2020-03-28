@@ -48,7 +48,7 @@ _ldapsearch() {
 	printf '\033[33m%s\033[0m\n' "$1"
 
 	if [[ ! -f /usr/bin/ldapsearch ]]; then
-		cmd='podman exec openldap ldapsearch'
+		cmd='podman exec ldap ldapsearch'
 	else
 		cmd=ldapsearch
 	fi

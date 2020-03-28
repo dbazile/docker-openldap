@@ -2,8 +2,8 @@
 
 set -e
 
-IMAGE_ID=openldap
-CONTAINER_ID=openldap
+IMAGE_ID=ldap
+CONTAINER_ID=ldap
 
 
 cd "$(dirname $0)"
